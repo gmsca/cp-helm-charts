@@ -30,4 +30,5 @@ spec:
   selector:
     app: {{ template "cp-kafka-rest.name" . }}
     release: {{ .Release.Name }}
+  loadBalancerIP: 172.16.87.187
 {{- end -}}
