@@ -23,6 +23,7 @@ spec:
     - {{ $cidr }}
   {{- end }}
   {{- end }}
+  loadBalancerIP: 172.16.87.173
   ports:
     - name: server-proxy
       port: {{ .Values.external.port }}
