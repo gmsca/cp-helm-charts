@@ -1,4 +1,8 @@
+{{- if .Capabilities.APIVersions.Has "apps/v1" }}
+apiVersion: apps/v1
+{{- else }}
 apiVersion: apps/v1beta2
+{{- end }}
 kind: Deployment
 metadata:
   name: {{ template "cp-kafka-connect.fullname" . }}
@@ -18,12 +22,12 @@ spec:
       labels:
         app: {{ template "cp-kafka-connect.name" . }}
         release: {{ .Release.Name }}
-      {{- if or .Values.podAnnotations (and .Values.prometheus.jmx.enabled (not .Values.prometheus.jmx.serviceMonitor.enabled)) }}
+      {{- if or .Values.podAnnotations .Values.prometheus.jmx.enabled }}
       annotations:
       {{- range $key, $value := .Values.podAnnotations }}
         {{ $key }}: {{ $value | quote }}
       {{- end }}
-      {{- if and .Values.prometheus.jmx.enabled (not .Values.prometheus.jmx.serviceMonitor.enabled) }}
+      {{- if .Values.prometheus.jmx.enabled }}
         prometheus.io/scrape: "true"
         prometheus.io/port: {{ .Values.prometheus.jmx.port | quote }}
       {{- end }}
@@ -33,6 +37,7 @@ spec:
         {{- if .Values.prometheus.jmx.enabled }}
         - name: prometheus-jmx-exporter
           image: "{{ .Values.prometheus.jmx.image }}:{{ .Values.prometheus.jmx.imageTag }}"
+          imagePullPolicy: "{{ .Values.prometheus.jmx.imagePullPolicy }}"
           command:
           - java
           - -XX:+UnlockExperimentalVMOptions
